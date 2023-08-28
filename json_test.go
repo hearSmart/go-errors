@@ -7,7 +7,7 @@ import (
 )
 
 func TestFrameMarshalText(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		Frame
 		want string
 	}{{
@@ -29,7 +29,7 @@ func TestFrameMarshalText(t *testing.T) {
 }
 
 func TestFrameMarshalJSON(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		Frame
 		want string
 	}{{

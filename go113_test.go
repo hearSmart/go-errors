@@ -1,3 +1,4 @@
+//go:build go1.13
 // +build go1.13
 
 package errors
@@ -78,7 +79,7 @@ type customErr struct {
 func (c customErr) Error() string { return c.msg }
 
 func TestAs(t *testing.T) {
-	var err = customErr{msg: "test message"}
+	err := customErr{msg: "test message"}
 
 	type args struct {
 		err    error

@@ -21,7 +21,7 @@ func (x *X) ptr() Frame {
 }
 
 func TestFrameFormat(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		Frame
 		format string
 		want   string
