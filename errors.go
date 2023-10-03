@@ -102,7 +102,7 @@ import (
 func New(message string) error {
 	return &fundamental{
 		msg:   message,
-		stack: callers(),
+		stack: callers(0),
 	}
 }
 
@@ -112,7 +112,7 @@ func New(message string) error {
 func Errorf(format string, args ...interface{}) error {
 	return &fundamental{
 		msg:   fmt.Sprintf(format, args...),
-		stack: callers(),
+		stack: callers(0),
 	}
 }
 
@@ -143,13 +143,11 @@ func (f *fundamental) Format(s fmt.State, verb rune) {
 // WithStack annotates err with a stack trace at the point WithStack was called.
 // If err is nil, WithStack returns nil.
 func WithStack(err error) error {
-	if err == nil {
-		return nil
-	}
-	return &withStack{
-		err,
-		callers(),
-	}
+	return wrapWithStack(err, 1)
+}
+
+func WithStackSkip(err error, skip int) error {
+	return wrapWithStack(err, 1+skip)
 }
 
 type withStack struct {
@@ -189,10 +187,7 @@ func Wrap(err error, message string) error {
 		cause: err,
 		msg:   message,
 	}
-	return &withStack{
-		err,
-		callers(),
-	}
+	return wrapWithStack(err, 1)
 }
 
 // Wrapf returns an error annotating err with a stack trace
@@ -206,10 +201,7 @@ func Wrapf(err error, format string, args ...interface{}) error {
 		cause: err,
 		msg:   fmt.Sprintf(format, args...),
 	}
-	return &withStack{
-		err,
-		callers(),
-	}
+	return wrapWithStack(err, 1)
 }
 
 // WithMessage annotates err with a new message.
@@ -285,4 +277,34 @@ func Cause(err error) error {
 		err = cause.Cause()
 	}
 	return err
+}
+
+type StackTracer interface {
+	StackTrace() StackTrace
+}
+
+func wrapWithStack(cause error, skip int) error {
+	causeStackTracer := new(StackTracer)
+	if As(cause, causeStackTracer) {
+		// If our cause has set a stack trace, and that trace is a child of our own function
+		// as inferred by prefix matching our current program counter stack, then we only want
+		// to decorate the error message rather than add a redundant stack trace.
+		if ancestorOfCause(callers(1), (*causeStackTracer).StackTrace()) {
+			return cause
+		}
+	}
+
+	// Otherwise we can't see a stack trace that represents ourselves, so let's add one.
+	// return PopStack(addStack(cause, skip))
+	return addStack(cause, 1+skip)
+}
+
+func addStack(err error, skip int) error {
+	if err == nil {
+		return nil
+	}
+	return &withStack{
+		err,
+		callers(skip),
+	}
 }

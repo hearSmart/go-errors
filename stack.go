@@ -160,10 +160,20 @@ func (s *stack) StackTrace() StackTrace {
 	return f
 }
 
-func callers() *stack {
+// callers returns a stack trace of program counters starting from the caller's frame,
+// skipping the specified number of frames.
+//
+// The returned stack represents the program counters of the calling functions.
+// The depth of the stack is determined by the number of frames available and the skip value.
+//
+// Note: The skip value is used to control the number of frames to skip before recording
+// in the program counters (pc). A default skip value of 3 is used, to add or subtract from
+// the skip value provide a positive or negative skip value not exceeding -3 to avoid as
+// passing a negative skip value to runtime.Callers may not yield meaningful results
+func callers(skip int) *stack {
 	const depth = 32
 	var pcs [depth]uintptr
-	n := runtime.Callers(3, pcs[:])
+	n := runtime.Callers(skip+3, pcs[:])
 	var st stack = pcs[0:n]
 	return &st
 }
@@ -174,4 +184,72 @@ func funcname(name string) string {
 	name = name[i+1:]
 	i = strings.Index(name, ".")
 	return name[i+1:]
+}
+
+// ancestorOfCause returns true if the caller looks to be an ancestor of the given stack
+// trace. We check this by seeing whether our stack prefix-matches the cause stack, which
+// should imply the error was generated directly from our goroutine.
+func ancestorOfCause(ourStack *stack, causeStack StackTrace) bool {
+	// Stack traces are ordered such that the deepest frame is first. We'll want to check
+	// for prefix matching in reverse.
+	//
+	// As an example, imagine we have a prefix-matching stack for ourselves:
+	// [
+	//   "github.com/onsi/ginkgo/internal/leafnodes.(*runner).runSync",
+	//   "github.com/incident-io/core/server/pkg/errors_test.TestSuite",
+	//   "testing.tRunner",
+	//   "runtime.goexit"
+	// ]
+	//
+	// We'll want to compare this against an error cause that will have happened further
+	// down the stack. An example stack trace from such an error might be:
+	// [
+	//   "github.com/incident-io/core/server/pkg/errors.New",
+	//   "github.com/incident-io/core/server/pkg/errors_test.glob..func1.2.2.2.1",
+	//   "github.com/onsi/ginkgo/internal/leafnodes.(*runner).runSync",
+	//   "github.com/incident-io/core/server/pkg/errors_test.TestSuite",
+	//   "testing.tRunner",
+	//   "runtime.goexit"
+	// ]
+	//
+	// They prefix match, but we'll have to handle the match carefully as we need to match
+	// from back to forward.
+
+	// We can't possibly prefix match if our stack is larger than the cause stack.
+	if len(*ourStack) > len(causeStack) {
+		return false
+	}
+
+	// We know the sizes are compatible, so compare program counters from back to front.
+	for idx := 0; idx < len(*ourStack); idx++ {
+		if (*ourStack)[len(*ourStack)-1] != (uintptr)(causeStack[len(causeStack)-1]) {
+			return false
+		}
+	}
+
+	// All comparisons checked out, these stacks match.
+	return true
+}
+
+// PopStack removes the topmost stack frame from an error's stack trace,
+// returning a new error with the same cause.
+func PopStack(err error) error {
+	if err == nil {
+		return err
+	}
+
+	errws, ok := err.(*withStack)
+	if !ok {
+		return err
+	}
+
+	if errws.stack == nil {
+		return err
+	}
+	if len(*errws.stack) <= 1 {
+		return err
+	}
+
+	*errws.stack = (*errws.stack)[1:]
+	return errws
 }
