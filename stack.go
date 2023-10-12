@@ -230,26 +230,3 @@ func ancestorOfCause(ourStack *stack, causeStack StackTrace) bool {
 	// All comparisons checked out, these stacks match.
 	return true
 }
-
-// PopStack removes the topmost stack frame from an error's stack trace,
-// returning a new error with the same cause.
-func PopStack(err error) error {
-	if err == nil {
-		return err
-	}
-
-	errws, ok := err.(*withStack)
-	if !ok {
-		return err
-	}
-
-	if errws.stack == nil {
-		return err
-	}
-	if len(*errws.stack) <= 1 {
-		return err
-	}
-
-	*errws.stack = (*errws.stack)[1:]
-	return errws
-}
