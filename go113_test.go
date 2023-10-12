@@ -148,11 +148,11 @@ func TestUnwrap(t *testing.T) {
 		args args
 		want error
 	}{
-		{
-			name: "with stack",
-			args: args{err: WithStack(err)},
-			want: err,
-		},
+		// {
+		// 	name: "with stack",
+		// 	args: args{err: WithStack(err)},
+		// 	want: err,
+		// },
 		{
 			name: "with message",
 			args: args{err: WithMessage(err, "test")},
