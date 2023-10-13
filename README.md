@@ -1,4 +1,22 @@
-# errors [![Travis-CI](https://travis-ci.org/pkg/errors.svg)](https://travis-ci.org/pkg/errors) [![AppVeyor](https://ci.appveyor.com/api/projects/status/b98mptawhudj53ep/branch/master?svg=true)](https://ci.appveyor.com/project/davecheney/errors/branch/master) [![GoDoc](https://godoc.org/github.com/pkg/errors?status.svg)](http://godoc.org/github.com/pkg/errors) [![Report card](https://goreportcard.com/badge/github.com/pkg/errors)](https://goreportcard.com/report/github.com/pkg/errors) [![Sourcegraph](https://sourcegraph.com/github.com/pkg/errors/-/badge.svg)](https://sourcegraph.com/github.com/pkg/errors?badge)
+# go-errors
+
+go-errors is a fork of github.com/pkg/errors with some small changes to prevent duplicate stack
+traces. It is a drop in replacement for the original package.
+
+## Usage
+
+Use `Wrap` to wrap an error with a message and add a stack.
+
+Use `WithStack` to add a stack to an error without a message.
+
+Use `WithStackSkip` if you need to add a stack inside a helper function but want to exclude the
+helper.
+
+Use the standard `errors.Is` or `errors.As` to match or unpack wrapped errors. These functions are
+re-exported in this package as well.
+
+
+# errors
 
 Package errors provides simple error handling primitives.
 
@@ -50,7 +68,7 @@ With the upcoming [Go2 error proposals](https://go.googlesource.com/proposal/+/m
 
 ## Contributing
 
-Because of the Go2 errors changes, this package is not accepting proposals for new functionality. With that said, we welcome pull requests, bug fixes and issue reports. 
+Because of the Go2 errors changes, this package is not accepting proposals for new functionality. With that said, we welcome pull requests, bug fixes and issue reports.
 
 Before sending a PR, please discuss your change by raising an issue.
 
