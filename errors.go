@@ -289,8 +289,15 @@ func wrapWithStack(cause error, skip int) error {
 		// If our cause has set a stack trace, and that trace is a child of our own function
 		// as inferred by prefix matching our current program counter stack, then we only want
 		// to decorate the error message rather than add a redundant stack trace.
-		if ancestorOfCause(callers(1), (*causeStackTracer).StackTrace()) {
+		stackLen := ancestorKeepStackLen(callers(1+skip), (*causeStackTracer).StackTrace())
+		if stackLen == 0 {
 			return cause
+		} else if stackLen > 0 {
+			ret := addStack(cause, 1+skip)
+			if retWS, ok := ret.(*withStack); ok {
+				(*retWS).Trim(stackLen, 4)
+			}
+			return ret
 		}
 	}
 
