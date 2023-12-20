@@ -26,8 +26,8 @@ func TestFormatNew(t *testing.T) {
 		New("error"),
 		"%+v",
 		"error\n" +
-			"github.com/pkg/errors.TestFormatNew\n" +
-			"\tgithub.com/pkg/errors/format_test.go:\\d+",
+			"github.com/hearSmart/go-errors.TestFormatNew\n" +
+			"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+",
 	}, {
 		New("error"),
 		"%q",
@@ -56,8 +56,8 @@ func TestFormatErrorf(t *testing.T) {
 		Errorf("%s", "error"),
 		"%+v",
 		"error\n" +
-			"github.com/pkg/errors.TestFormatErrorf\n" +
-			"\tgithub.com/pkg/errors/format_test.go:\\d+",
+			"github.com/hearSmart/go-errors.TestFormatErrorf\n" +
+			"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+",
 	}}
 
 	for i, tt := range tests {
@@ -82,8 +82,8 @@ func TestFormatWrap(t *testing.T) {
 		Wrap(New("error"), "error2"),
 		"%+v",
 		"error\n" +
-			"github.com/pkg/errors.TestFormatWrap\n" +
-			"\tgithub.com/pkg/errors/format_test.go:\\d+",
+			"github.com/hearSmart/go-errors.TestFormatWrap\n" +
+			"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+",
 	}, {
 		Wrap(io.EOF, "error"),
 		"%s",
@@ -97,15 +97,15 @@ func TestFormatWrap(t *testing.T) {
 		"%+v",
 		"EOF\n" +
 			"error\n" +
-			"github.com/pkg/errors.TestFormatWrap\n" +
-			"\tgithub.com/pkg/errors/format_test.go:\\d+",
+			"github.com/hearSmart/go-errors.TestFormatWrap\n" +
+			"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+",
 	}, {
 		Wrap(Wrap(io.EOF, "error1"), "error2"),
 		"%+v",
 		"EOF\n" +
 			"error1\n" +
-			"github.com/pkg/errors.TestFormatWrap\n" +
-			"\tgithub.com/pkg/errors/format_test.go:\\d+\n",
+			"github.com/hearSmart/go-errors.TestFormatWrap\n" +
+			"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+\n",
 	}, {
 		Wrap(New("error with space"), "context"),
 		"%q",
@@ -135,8 +135,8 @@ func TestFormatWrapf(t *testing.T) {
 		"%+v",
 		"EOF\n" +
 			"error2\n" +
-			"github.com/pkg/errors.TestFormatWrapf\n" +
-			"\tgithub.com/pkg/errors/format_test.go:\\d+",
+			"github.com/hearSmart/go-errors.TestFormatWrapf\n" +
+			"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+",
 	}, {
 		Wrapf(New("error"), "error%d", 2),
 		"%s",
@@ -149,8 +149,8 @@ func TestFormatWrapf(t *testing.T) {
 		Wrapf(New("error"), "error%d", 2),
 		"%+v",
 		"error\n" +
-			"github.com/pkg/errors.TestFormatWrapf\n" +
-			"\tgithub.com/pkg/errors/format_test.go:\\d+",
+			"github.com/hearSmart/go-errors.TestFormatWrapf\n" +
+			"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+",
 	}}
 
 	for i, tt := range tests {
@@ -176,8 +176,8 @@ func TestFormatWithStack(t *testing.T) {
 		"%+v",
 		[]string{
 			"EOF",
-			"github.com/pkg/errors.TestFormatWithStack\n" +
-				"\tgithub.com/pkg/errors/format_test.go:\\d+",
+			"github.com/hearSmart/go-errors.TestFormatWithStack\n" +
+				"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+",
 		},
 	}, {
 		WithStack(New("error")),
@@ -192,20 +192,20 @@ func TestFormatWithStack(t *testing.T) {
 		"%+v",
 		[]string{
 			"error",
-			"github.com/pkg/errors.TestFormatWithStack\n" +
-				"\tgithub.com/pkg/errors/format_test.go:\\d+",
-			// "github.com/pkg/errors.TestFormatWithStack\n" +
-			// 	"\tgithub.com/pkg/errors/format_test.go:191",
+			"github.com/hearSmart/go-errors.TestFormatWithStack\n" +
+				"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+",
+			// "github.com/hearSmart/go-errors.TestFormatWithStack\n" +
+			// 	"\tgithub.com/hearSmart/go-errors/format_test.go:191",
 		},
 	}, {
 		WithStack(WithStack(io.EOF)),
 		"%+v",
 		[]string{
 			"EOF",
-			"github.com/pkg/errors.TestFormatWithStack\n" +
-				"\tgithub.com/pkg/errors/format_test.go:\\d+",
-			// "github.com/pkg/errors.TestFormatWithStack\n" +
-			// 	"\tgithub.com/pkg/errors/format_test.go:201",
+			"github.com/hearSmart/go-errors.TestFormatWithStack\n" +
+				"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+",
+			// "github.com/hearSmart/go-errors.TestFormatWithStack\n" +
+			// 	"\tgithub.com/hearSmart/go-errors/format_test.go:201",
 		},
 	}, {
 		WithStack(WithStack(Wrapf(io.EOF, "message"))),
@@ -213,22 +213,22 @@ func TestFormatWithStack(t *testing.T) {
 		[]string{
 			"EOF",
 			"message",
-			"github.com/pkg/errors.TestFormatWithStack\n" +
-				"\tgithub.com/pkg/errors/format_test.go:\\d+",
-			// "github.com/pkg/errors.TestFormatWithStack\n" +
-			// 	"\tgithub.com/pkg/errors/format_test.go:211",
-			// "github.com/pkg/errors.TestFormatWithStack\n" +
-			// 	"\tgithub.com/pkg/errors/format_test.go:211",
+			"github.com/hearSmart/go-errors.TestFormatWithStack\n" +
+				"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+",
+			// "github.com/hearSmart/go-errors.TestFormatWithStack\n" +
+			// 	"\tgithub.com/hearSmart/go-errors/format_test.go:211",
+			// "github.com/hearSmart/go-errors.TestFormatWithStack\n" +
+			// 	"\tgithub.com/hearSmart/go-errors/format_test.go:211",
 		},
 	}, {
 		WithStack(Errorf("error%d", 1)),
 		"%+v",
 		[]string{
 			"error1",
-			"github.com/pkg/errors.TestFormatWithStack\n" +
-				"\tgithub.com/pkg/errors/format_test.go:\\d+",
-			// "github.com/pkg/errors.TestFormatWithStack\n" +
-			// 	"\tgithub.com/pkg/errors/format_test.go:224",
+			"github.com/hearSmart/go-errors.TestFormatWithStack\n" +
+				"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+",
+			// "github.com/hearSmart/go-errors.TestFormatWithStack\n" +
+			// 	"\tgithub.com/hearSmart/go-errors/format_test.go:224",
 		},
 	}}
 
@@ -255,8 +255,8 @@ func TestFormatWithMessage(t *testing.T) {
 		"%+v",
 		[]string{
 			"error",
-			"github.com/pkg/errors.TestFormatWithMessage\n" +
-				"\tgithub.com/pkg/errors/format_test.go:\\d+",
+			"github.com/hearSmart/go-errors.TestFormatWithMessage\n" +
+				"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+",
 			"error2",
 		},
 	}, {
@@ -284,16 +284,16 @@ func TestFormatWithMessage(t *testing.T) {
 		"%+v",
 		[]string{
 			"EOF", "error1", "error2",
-			"github.com/pkg/errors.TestFormatWithMessage\n" +
-				"\tgithub.com/pkg/errors/format_test.go:\\d+",
+			"github.com/hearSmart/go-errors.TestFormatWithMessage\n" +
+				"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+",
 		},
 	}, {
 		WithMessage(Errorf("error%d", 1), "error2"),
 		"%+v",
 		[]string{
 			"error1",
-			"github.com/pkg/errors.TestFormatWithMessage\n" +
-				"\tgithub.com/pkg/errors/format_test.go:\\d+",
+			"github.com/hearSmart/go-errors.TestFormatWithMessage\n" +
+				"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+",
 			"error2",
 		},
 	}, {
@@ -301,8 +301,8 @@ func TestFormatWithMessage(t *testing.T) {
 		"%+v",
 		[]string{
 			"EOF",
-			"github.com/pkg/errors.TestFormatWithMessage\n" +
-				"\tgithub.com/pkg/errors/format_test.go:\\d+",
+			"github.com/hearSmart/go-errors.TestFormatWithMessage\n" +
+				"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+",
 			"error",
 		},
 	}, {
@@ -310,11 +310,11 @@ func TestFormatWithMessage(t *testing.T) {
 		"%+v",
 		[]string{
 			"EOF",
-			"github.com/pkg/errors.TestFormatWithMessage\n" +
-				"\tgithub.com/pkg/errors/format_test.go:\\d+",
+			"github.com/hearSmart/go-errors.TestFormatWithMessage\n" +
+				"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+",
 			"inside-error",
-			// "github.com/pkg/errors.TestFormatWithMessage\n" +
-			// 	"\tgithub.com/pkg/errors/format_test.go:309",
+			// "github.com/hearSmart/go-errors.TestFormatWithMessage\n" +
+			// 	"\tgithub.com/hearSmart/go-errors/format_test.go:309",
 			"outside-error",
 		},
 	}}
@@ -332,14 +332,14 @@ func TestFormatGeneric(t *testing.T) {
 		{
 			New("new-error"), []string{
 				"new-error",
-				"github.com/pkg/errors.TestFormatGeneric\n" +
-					"\tgithub.com/pkg/errors/format_test.go:\\d+",
+				"github.com/hearSmart/go-errors.TestFormatGeneric\n" +
+					"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+",
 			},
 		}, {
 			Errorf("errorf-error"), []string{
 				"errorf-error",
-				"github.com/pkg/errors.TestFormatGeneric\n" +
-					"\tgithub.com/pkg/errors/format_test.go:\\d+",
+				"github.com/hearSmart/go-errors.TestFormatGeneric\n" +
+					"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+",
 			},
 		}, {
 			errors.New("errors-new-error"), []string{
@@ -355,22 +355,22 @@ func TestFormatGeneric(t *testing.T) {
 		}, {
 			func(err error) error { return WithStack(err) },
 			[]string{
-				"github.com/pkg/errors.(func·002|TestFormatGeneric.func2)\n\t" +
-					"github.com/pkg/errors/format_test.go:\\d+",
+				"github.com/hearSmart/go-errors.(func·002|TestFormatGeneric.func2)\n\t" +
+					"github.com/hearSmart/go-errors/format_test.go:\\d+",
 			},
 		}, {
 			func(err error) error { return Wrap(err, "wrap-error") },
 			[]string{
 				"wrap-error",
-				"github.com/pkg/errors.(func·003|TestFormatGeneric.func3)\n\t" +
-					"github.com/pkg/errors/format_test.go:\\d+",
+				"github.com/hearSmart/go-errors.(func·003|TestFormatGeneric.func3)\n\t" +
+					"github.com/hearSmart/go-errors/format_test.go:\\d+",
 			},
 		}, {
 			func(err error) error { return Wrapf(err, "wrapf-error%d", 1) },
 			[]string{
 				"wrapf-error1",
-				"github.com/pkg/errors.(func·004|TestFormatGeneric.func4)\n\t" +
-					"github.com/pkg/errors/format_test.go:\\d+",
+				"github.com/hearSmart/go-errors.(func·004|TestFormatGeneric.func4)\n\t" +
+					"github.com/hearSmart/go-errors/format_test.go:\\d+",
 			},
 		},
 	}
@@ -396,10 +396,10 @@ func TestFormatWrappedNew(t *testing.T) {
 		wrappedNew("error"),
 		"%+v",
 		"error\n" +
-			"github.com/pkg/errors.wrappedNew\n" +
-			"\tgithub.com/pkg/errors/format_test.go:\\d+\n" +
-			"github.com/pkg/errors.TestFormatWrappedNew\n" +
-			"\tgithub.com/pkg/errors/format_test.go:\\d+",
+			"github.com/hearSmart/go-errors.wrappedNew\n" +
+			"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+\n" +
+			"github.com/hearSmart/go-errors.TestFormatWrappedNew\n" +
+			"\tgithub.com/hearSmart/go-errors/format_test.go:\\d+",
 	}}
 
 	for i, tt := range tests {

@@ -160,6 +160,17 @@ func (s *stack) StackTrace() StackTrace {
 	return f
 }
 
+func (s *stack) Trim(n int, min int) {
+	slice := *s
+	if n < min {
+		n = min
+	}
+	if n > len(slice) {
+		return
+	}
+	(*s) = (*s)[:n]
+}
+
 // callers returns a stack trace of program counters starting from the caller's frame,
 // skipping the specified number of frames.
 //
@@ -186,47 +197,27 @@ func funcname(name string) string {
 	return name[i+1:]
 }
 
-// ancestorOfCause returns true if the caller looks to be an ancestor of the given stack
-// trace. We check this by seeing whether our stack prefix-matches the cause stack, which
-// should imply the error was generated directly from our goroutine.
-func ancestorOfCause(ourStack *stack, causeStack StackTrace) bool {
-	// Stack traces are ordered such that the deepest frame is first. We'll want to check
-	// for prefix matching in reverse.
-	//
-	// As an example, imagine we have a prefix-matching stack for ourselves:
-	// [
-	//   "github.com/onsi/ginkgo/internal/leafnodes.(*runner).runSync",
-	//   "github.com/incident-io/core/server/pkg/errors_test.TestSuite",
-	//   "testing.tRunner",
-	//   "runtime.goexit"
-	// ]
-	//
-	// We'll want to compare this against an error cause that will have happened further
-	// down the stack. An example stack trace from such an error might be:
-	// [
-	//   "github.com/incident-io/core/server/pkg/errors.New",
-	//   "github.com/incident-io/core/server/pkg/errors_test.glob..func1.2.2.2.1",
-	//   "github.com/onsi/ginkgo/internal/leafnodes.(*runner).runSync",
-	//   "github.com/incident-io/core/server/pkg/errors_test.TestSuite",
-	//   "testing.tRunner",
-	//   "runtime.goexit"
-	// ]
-	//
-	// They prefix match, but we'll have to handle the match carefully as we need to match
-	// from back to forward.
+// ancestorKeepStackLen returns the number of frames to keep in the new stack. Returns -1 to keep all frames
+func ancestorKeepStackLen(ourStack *stack, causeStack StackTrace) int {
 
-	// We can't possibly prefix match if our stack is larger than the cause stack.
-	if len(*ourStack) > len(causeStack) {
-		return false
-	}
+	// try find one of the first few pc from our stack in the cause stack
+	for ourOffset := 0; ourOffset < 5 && ourOffset < len(*ourStack); ourOffset++ {
+		ourPC := (*ourStack)[ourOffset]
 
-	// We know the sizes are compatible, so compare program counters from back to front.
-	for idx := 0; idx < len(*ourStack); idx++ {
-		if (*ourStack)[len(*ourStack)-1] != (uintptr)(causeStack[len(causeStack)-1]) {
-			return false
+		for causeOffset, causePC := range causeStack {
+			// try find our last frame in the cause stack
+			if ourPC == uintptr(causePC) {
+				// check every frame above it until one of the stacks is empty
+				for i := 1; i+ourOffset < len(*ourStack) && i+causeOffset < len(causeStack); i++ {
+					if (*ourStack)[i+ourOffset] != uintptr(causeStack[i+causeOffset]) {
+						return -1 // the stacks don't match so keep the full stack
+					}
+				}
+				return ourOffset
+			}
 		}
 	}
 
-	// All comparisons checked out, these stacks match.
-	return true
+	// none of the frames were found so keep the full stack
+	return -1
 }
